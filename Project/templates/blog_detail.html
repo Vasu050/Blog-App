@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+      
+    .blog-container {
+    display: flex;
+    flex-wrap: nowrap; /* Ensure items do not wrap by default */
+    justify-content: space-between;
+    gap: 20px; /* Add spacing between the description and image */
+    align-items: flex-start; /* Align items at the top */
+    display: flex !important;
+    flex-wrap: nowrap !important;
+
+}
+
+  .blog-description {
+    flex: 1 1 60%; /* Allow the description to take up to 60% of the container width */
+    font-size: 18px;
+    padding-right: 15px;
+}
+
+  .image-container {
+    flex: 0 0 auto; /* Prevent the image container from shrinking or growing */
+    display: flex;
+    justify-content: flex-end;
+}
+
+  .blog-image {
+    max-width: 100%; /* Ensure the image fits within its container */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; /* Prevent image distortion */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+  .blog-description {
+    grid-column: 1; /* Default column placement */
+    font-size: 20px; /* Slightly larger font for better readability */
+    line-height: 1.6; /* Adjust spacing between lines for better readability */
+    font-family:  "Times New Roman", serif; /* Elegant and readable font */
+    color: #333; /* Slightly softer black for less strain on eyes */
+    text-align: justify; /* Justify the text for a clean look */
+    padding: 10px; /* Add padding for spacing around the text */
+   
+    border-radius: 8px; /* Rounded corners for a polished look */
+ 
+}
+
+/* Full-width description below the image */
+  .image-present .blog-description {
+    grid-column: span 2; /* Span both columns */
+}
+
+/* Full-width description when no image is present */
+  .no-image .blog-description {
+    grid-column: span 2; /* Take full width */
+}
+
+  .sticky-button {
+    position: sticky; /* Enables the sticky behavior */
+    top: 10px; /* Distance from the top of the viewport */
+    z-index: 1000; /* Ensures the button appears above other elements */
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #007bff; /* Primary blue color */
+    color: #ffffff; /* White text */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for better visibility */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.sticky-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    text-decoration: none; /* Remove underline on hover */
+}
+
+
+</style>
+
+<title>Blog</title>
+
+</head>
+
+<body class="p-0 m-0 border-0 bd-example">
+
+    <nav class="navbar navbar-expand-lg bg-body-secondary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">My Blog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/myblogs/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/blog/blogs/">My Blogs</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Logout
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">Hello {{request.user.first_name}}</a>
+            </li>
+          </ul>
+          <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>  
+
+<div class="title">
+    <h1 style="text-align: center; font-size: 45px;">{{blog.title}}</h1>
+    <div style="text-align: left; padding-top:15px; font-style: italic;font-weight: bold; font-size: 20px; padding-top: 40px;">{{blog.author.first_name}} {{blog.author.last_name}}
+    </div>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+      <a href="/blog/blogs/" button class="btn btn-primary me-md-2" type="button">Back</button></a>
+
+    </div>
+    <hr style="text-align:left;margin-left:0">
+    <div class="blog-container {% if blog.img %}image-present{% else %}no-image{% endif %}">
+        <div class="blog-description">
+            <p>{{blog.description}}</p>
+        </div>
+        {% if blog.img %}
+        <div class="image-container">
+            <img src="{{blog.img.url}}" alt="Blog Image" class="blog-image">
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div><a href="/blog/blogs/" class="btn btn-primary">Back</a></div>
+</body>
+</html>
