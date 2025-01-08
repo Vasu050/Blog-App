@@ -72,6 +72,42 @@
         margin-top: 15px;
       }
     }
+
+    /* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination .btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 15px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.pagination .btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.pagination .btn:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.pagination .current-page {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
+}
+
   </style>
 </head>
 
@@ -97,16 +133,18 @@
               Account
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/profile">Profile</a></li>
               <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Hello {{ request.user.first_name }}</a>
+            <a class="nav-link disabled" aria-disabled="true">Hello {{ request.user.first_name }} {{request.user.full_name}}</a>
           </li>
         </ul>
         <form class="d-flex" method="POST" action="/blog/search/">
           {% csrf_token %}
           <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search">
+          <input type="hidden" name="source" value="{{ request.path }}">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
@@ -114,10 +152,10 @@
   </nav>
 
   <div class="container">
-    {% if blogs|length == 0 %}
+    {% if page_obj.object_list|length == 0 %}
       <h4 class="text-center mt-4">No blogs available. Create one below!</h4>
     {% else %}
-      {% for blog in blogs %}
+    {% for blog in page_obj.object_list %}
         <div class="content">
           <div>
             <h1><a href="/blog/blog/{{ blog.id }}" class="text-decoration-none">{{ blog.title }}</a></h1>
@@ -131,11 +169,26 @@
           {% endif %}
         </div>
       {% endfor %}
-    {% endif %}
-    <div class="text-center mt-4">
-      <a href="/blog/add/" class="btn btn-primary">Add Blog</a>
+      {% endif %}
+      
+      <div class="text-center mt-4">
+        <a href="/blog/add/" class="btn btn-primary">Add Blog</a>
+      </div>
+    </div>  
+      <div class="pagination text-center mt-4">
+      {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-secondary">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Previous</a>
+      {% endif %}
+
+      <span class="mx-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary">Last</a>
+      {% endif %}
     </div>
-  </div>
+
 </body>
 
 </html>

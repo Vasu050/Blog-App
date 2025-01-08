@@ -3,11 +3,27 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.models import User,auth
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.utils.crypto import get_random_string
-# from .models import PasswordResetRequest
 from django.core.mail import send_mail
-# Create your views here.
+from django.utils import timezone
+from django.utils import timezone
+from datetime import timedelta
+from datetime import datetime
+import random
+
+'''from django.utils.crypto import get_random_string
+from django.contrib.auth.views import (
+    LogoutView, 
+    PasswordResetView, 
+    PasswordResetDoneView, 
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)'''
+
+
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('/blog/myblogs/')
+    
     if request.method=='POST':
         '''username=request.POST['email']
         password=request.POST['password']'''
@@ -44,12 +60,12 @@ def user_login(request):
         
         try:
             # Find user by email
-            user = User.objects.get(Q(email=username) | Q(username=username))
+            user_obj = User.objects.get(Q(email=username) | Q(username=username))
         except User.DoesNotExist:
-            user = None
-        if user is not None:
+            user_obj = None
+        if user_obj is not None:
             # Authenticate using username and password
-            user = authenticate(request, username=user.username, password=password)
+            user = authenticate(request, username=user_obj.username, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('blog/myblogs/')
@@ -78,22 +94,125 @@ def register(request):
                 messages.info(request,"username aready exist")
                 return redirect("register")
             else:
-
-                user=User.objects.create_user(password=password1,username=username,email=email,first_name=first_name,last_name=last_name)
-                user.save()
-                messages.success(request,"user created")
-                return redirect('/')
+                request.session['first_name'] = first_name
+                request.session['last_name'] = last_name
+                request.session['email'] = email
+                request.session['username'] = username
+                request.session['password1'] = password1
+                return send_otp(request)
+                
         else:
             messages.error(request,"password is not matching")
             return redirect('register')
     else:
         return render(request,'register.html')
     
+def send_otp(request):
+    otp=random.randint(1000, 9999)
+    otp_expiry=timezone.now() + timedelta(minutes=1)
+    email = request.session.get('email')
+    request.session['otp'] = otp
+    request.session['otp_expiry'] = otp_expiry.isoformat()
+    send_mail(
+    "Registration Code",                 
+    f"Thank you for registering with us!.Here is your One Time Password \n {otp}",
+    "{vasujain050@gmail.com}",                 
+    [email],                              
+    fail_silently=False,                       # Raise error if sending fails
+    )
+    messages.success(request,"OTP sent successfully.Check your mail")
+    return redirect('verify')
+
+def verify(request):
+    if request.method=='POST':
+        otp1 = request.POST['otp1']
+        otp2 = request.POST['otp2']
+        otp3 = request.POST['otp3']
+        otp4 = request.POST['otp4']
+        user_otp = int(otp1+otp2+otp3+otp4)
+        stored_otp = request.session.get('otp')
+        otp_expiry_str = request.session.get('otp_expiry')
+        otp_expiry = datetime.fromisoformat(otp_expiry_str) 
+
+        if timezone.now() > otp_expiry:
+            messages.error(request, "OTP has expired. Please request a new OTP.")
+            return redirect('verify')  
+
+        if not user_otp == stored_otp:
+            messages.error(request, "Invalid OTP. Please try again.")
+            return redirect('verify')
+        else:
+
+            first_name = request.session.get('first_name')
+            last_name = request.session.get('last_name')
+            email = request.session.get('email')
+            username = request.session.get('username')
+            password1 = request.session.get('password1')
+            
+            if password1:
+                user = User.objects.create_user(password=password1, username=username, email=email, first_name=first_name, last_name=last_name)
+                user.save()
+                messages.success(request, "User registered successfully")
+                request.session.pop('otp', None)
+                request.session.pop('otp_time', None)
+                request.session.pop('first_name', None)
+                request.session.pop('last_name', None)
+                request.session.pop('email', None)
+                request.session.pop('username', None)
+                request.session.pop('password1', None)
+                request.session.pop('otp', None)
+                request.session.pop('otp_expiry', None)
+                return redirect('/')
+            else:
+                return redirect('register')
+    return render(request, 'verify.html')
+    
+
 def logout(request):
     auth.logout(request)
     return redirect('/')
 
+def profile(request):
+    if not request.user.is_authenticated:  
+        messages.error(request, 'Authentication Required')
+        return redirect('/')
+     
+    user=request.user
+    if request.method=='POST':
+        try:
+            user.first_name=request.POST.get('first_name')
+            user.last_name=request.POST.get('last_name')
+            email=request.POST.get('email')
+            if User.objects.filter(email=email).exclude(email=user.email).exists():
+                messages.error(request,"Email aready exist")
+                return redirect('profile')
+            else:
+                user.email=email
+                user.save()
+                messages.info(request,"Your Profile Updated Successfully")
+                return redirect('profile')
+        except Exception as e:
+            return f'error: {str(e)}'
     
+    return render(request,'profile.html',{'user':user})
+
+def delete(request):
+    if not request.user.is_authenticated:  
+        messages.error(request, 'Authentication Required')
+        return redirect('/')
+    
+    user=request.user
+    try:
+        user = request.user
+        user.delete()  
+        messages.success(request, "Your account has been deleted successfully.")
+        return redirect('/') 
+    except Exception as e:
+        messages.error(request, f"Error deleting account: {str(e)}")
+        return redirect('/profile/') 
+        
+
+'''   
 def forgot_password_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -135,3 +254,4 @@ def reset_password_view(request, token):
         return redirect('login')
 
     return render(request, 'authentication/reset_password.html', {'token': token})
+'''

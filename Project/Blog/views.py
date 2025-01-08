@@ -1,9 +1,13 @@
 # views.py
 from django.shortcuts import render, redirect,get_object_or_404
-from .models import Todo
+from .models import Todo#,BlogImage
 from django.contrib.auth.models import User
 #from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 def blog(request):
 
@@ -15,7 +19,7 @@ def blog(request):
         title = request.POST.get('title')   
         description = request.POST.get('description')
         img = request.FILES.get('img')
-        author=request.user 
+        author=request.user
         new_blog = Todo(
             title=title,
             description=description,
@@ -32,7 +36,6 @@ def blog(request):
 
     blogs = Todo.objects.filter(author=request.user).order_by('-date_created')  
     return render(request, 'index.html', {'blogs': blogs})
-
        
 def delete_blog(request,id):
         if not request.user.is_authenticated:  
@@ -104,11 +107,14 @@ def search(request):
         source = request.POST.get('source', '')
         
     if source=='/blog/blogs/':
-        blogs = Todo.objects.filter(title__icontains=query,author=request.user)
-        return render(request,'index.html',{'blogs': blogs})
-    else:
-        blogs = Todo.objects.filter(title__icontains=query)
+        blogs = Todo.objects.filter(
+        Q(title__icontains=query) | Q(author__first_name__icontains=query) 
+        | Q(author__last_name__icontains=query) | Q(description__icontains=query),author=request.user)
         return render(request,'myblog.html',{'blogs': blogs})
+    else:
+        blogs = Todo.objects.filter(
+        Q(title__icontains=query) | Q(author__first_name__icontains=query) | Q(author__last_name__icontains=query) | Q(description__icontains=query))
+        return render(request,'ht.html',{'blogs': blogs})
 
 
 def myblogs(request):
@@ -117,4 +123,36 @@ def myblogs(request):
         return redirect('/')
 
     blogs = Todo.objects.order_by('-date_created') 
-    return render(request, 'ht.html', {'blogs': blogs})
+    paginator = Paginator(blogs, 4)  
+    page_number = request.GET.get('page') 
+    page_obj = paginator.get_page(page_number) 
+
+    return render(request, 'ht.html', {'page_obj': page_obj,'blogs': blogs})
+  #  return render(request, 'ht.html', {'blogs': blogs})
+
+
+'''@csrf_exempt
+def upload_image(request, blog_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required.'})
+
+    if request.method == 'POST':
+        blog = get_object_or_404(Todo, id=blog_id, author=request.user)
+        image = request.FILES.get('img')
+
+        if image:
+            BlogImage.objects.create(blog=blog, image=image)
+            return JsonResponse({'success': True, 'message': 'Image uploaded successfully!'})
+        return JsonResponse({'success': False, 'message': 'No image provided.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+def upload_images_page(request, blog_id):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Authentication Required')
+        return redirect('/')
+
+    blog = get_object_or_404(Todo, id=blog_id, author=request.user)
+    return render(request, 'upload_images.html', {'blog': blog})
+'''

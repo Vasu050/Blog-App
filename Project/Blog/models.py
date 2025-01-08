@@ -14,6 +14,10 @@ class Todo(models.Model):
     ''' class TodoImage(models.Model):
         todo = models.ForeignKey('Todo', on_delete=models.CASCADE, related_name='images')
         img = models.ImageField(upload_to='pics')'''
-
+    
+    '''  blog = models.ForeignKey(Todo, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='pics')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    '''
     def __str__(self):
         return f'Blog {self.title},{self.id}'

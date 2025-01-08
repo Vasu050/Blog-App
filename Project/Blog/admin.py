@@ -7,7 +7,7 @@ class TodoAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description') 
 
     def author_full_name(self,user):
-        return f"{user.author.first_name}"
+        return f"{user.author.first_name} {user.author.last_name}"
     author_full_name.short_description = 'Author'
    
     def username(self, obj):

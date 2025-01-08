@@ -16,8 +16,6 @@
             height: 100%;
         }
 
-        
-
         .title {
             text-align: center;
             margin-top: 50px;
@@ -112,12 +110,12 @@
 
         /* Styling the blog title */
       .blog-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-align: center;
-    margin: 20px 0;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-align: center;
+        margin: 20px 0;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Styling for "Welcome to My Blog Space" */
@@ -148,6 +146,7 @@
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+
     </style>
     <title>My Blogs</title>
 </head>
@@ -171,9 +170,10 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            Logout
+                            Account
                         </a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/profile">Profile</a></li>
                             <li><a class="dropdown-item" href="/logout">Logout</a></li>
                         </ul>
                     </li>
@@ -185,7 +185,7 @@
                     {% csrf_token %}
                     <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search">
                     <input type="hidden" name="source" value="{{ request.path }}">
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
             </div>
         </div>
