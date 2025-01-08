@@ -11,73 +11,72 @@
       
     .blog-container {
     display: flex;
-    flex-wrap: nowrap; /* Ensure items do not wrap by default */
+    flex-wrap: nowrap; 
     justify-content: space-between;
-    gap: 20px; /* Add spacing between the description and image */
-    align-items: flex-start; /* Align items at the top */
+    gap: 20px;
+    align-items: flex-start; 
     display: flex !important;
     flex-wrap: nowrap !important;
 
 }
 
   .blog-description {
-    flex: 1 1 60%; /* Allow the description to take up to 60% of the container width */
+    flex: 1 1 60%;
     font-size: 18px;
     padding-right: 15px;
 }
 
   .image-container {
-    flex: 0 0 auto; /* Prevent the image container from shrinking or growing */
+    flex: 0 0 auto; 
     display: flex;
     justify-content: flex-end;
 }
 
   .blog-image {
-    max-width: 100%; /* Ensure the image fits within its container */
-    height: auto; /* Maintain aspect ratio */
-    object-fit: cover; /* Prevent image distortion */
-    border-radius: 8px; /* Optional: Add rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+    max-width: 100%; 
+    height: auto; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
   .blog-description {
-    grid-column: 1; /* Default column placement */
-    font-size: 20px; /* Slightly larger font for better readability */
-    line-height: 1.6; /* Adjust spacing between lines for better readability */
-    font-family:  "Times New Roman", serif; /* Elegant and readable font */
-    color: #333; /* Slightly softer black for less strain on eyes */
-    text-align: justify; /* Justify the text for a clean look */
-    padding: 10px; /* Add padding for spacing around the text */
+    grid-column: 1; 
+    font-size: 20px; 
+    line-height: 1.6; 
+    font-family:  "Times New Roman", serif; 
+    color: #333; 
+    text-align: justify; 
+    padding: 10px; 
    
-    border-radius: 8px; /* Rounded corners for a polished look */
+    border-radius: 8px;
  
 }
 
-/* Full-width description below the image */
+
   .image-present .blog-description {
-    grid-column: span 2; /* Span both columns */
+    grid-column: span 2;
 }
 
-/* Full-width description when no image is present */
   .no-image .blog-description {
-    grid-column: span 2; /* Take full width */
+    grid-column: span 2; 
 }
 
   .sticky-button {
-    position: sticky; /* Enables the sticky behavior */
-    top: 10px; /* Distance from the top of the viewport */
-    z-index: 1000; /* Ensures the button appears above other elements */
+    position: sticky; 
+    top: 10px; 
+    z-index: 1000; 
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #007bff; /* Primary blue color */
-    color: #ffffff; /* White text */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for better visibility */
-    transition: background-color 0.3s ease; /* Smooth hover effect */
+    background-color: #007bff; 
+    color: #ffffff;
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    transition: background-color 0.3s ease; 
 }
 
 .sticky-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    text-decoration: none; /* Remove underline on hover */
+    background-color: #0056b3; 
+    text-decoration: none; 
 }
 
 

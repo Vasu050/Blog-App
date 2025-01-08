@@ -10,61 +10,21 @@ from datetime import timedelta
 from datetime import datetime
 import random
 
-'''from django.utils.crypto import get_random_string
-from django.contrib.auth.views import (
-    LogoutView, 
-    PasswordResetView, 
-    PasswordResetDoneView, 
-    PasswordResetConfirmView,
-    PasswordResetCompleteView
-)'''
-
-
 def user_login(request):
     if request.user.is_authenticated:
         return redirect('/blog/myblogs/')
     
     if request.method=='POST':
-        '''username=request.POST['email']
-        password=request.POST['password']'''
-        
-        
-        '''try:
-            user = User.objects.get(email=email)  
-            if user.check_password(password):  
-                auth.login(request, user) 
-            user = authenticate(request, username=email, password=password)
-                return redirect('blog/')  
-            else:
-                messages.info(request, 'Invalid Credentials')
-                return redirect('login') 
-        except User.DoesNotExist:
-            messages.info(request, 'User does not exist')
-            return redirect('login') 
-    else:
-        return render(request, 'login.html')'''
-        '''user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)  
-            return redirect('blog/blogs/')  
-        else:
-            messages.info(request, 'Invalid Credentials')
-            return redirect('/')  
-    else:
-        return render(request, 'login.html')'''
-        
 
         username = request.POST['username']
         password = request.POST['password']
         
         try:
-            # Find user by email
             user_obj = User.objects.get(Q(email=username) | Q(username=username))
         except User.DoesNotExist:
             user_obj = None
         if user_obj is not None:
-            # Authenticate using username and password
+          
             user = authenticate(request, username=user_obj.username, password=password)
             if user is not None:
                 login(request, user)
@@ -118,7 +78,7 @@ def send_otp(request):
     f"Thank you for registering with us!.Here is your One Time Password \n {otp}",
     "{vasujain050@gmail.com}",                 
     [email],                              
-    fail_silently=False,                       # Raise error if sending fails
+    fail_silently=False,
     )
     messages.success(request,"OTP sent successfully.Check your mail")
     return redirect('verify')
@@ -211,47 +171,3 @@ def delete(request):
         messages.error(request, f"Error deleting account: {str(e)}")
         return redirect('/profile/') 
         
-
-'''   
-def forgot_password_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        user = User.objects.filter(email=email).first()
-
-        if user:
-            # Create reset request and generate token
-            reset_request = PasswordResetRequest(user=user, email=email)
-            reset_request.generate_token()
-            reset_request.save()
-            reset_request.send_reset_email()
-            messages.success(request, 'Reset link sent to your email.')
-        else:
-            messages.error(request, 'Email not found.')
-
-    return render(request, 'forgot-password.html')
-
-def reset_password_view(request, token):
-    # Check if the token is valid
-    reset_request = PasswordResetRequest.objects.filter(token=token).first()
-
-    if not reset_request or not reset_request.is_valid():
-        messages.error(request, 'Invalid or expired reset link')
-        return redirect('index')
-
-    if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-
-        # Set the new password
-        user = reset_request.user
-        user.set_password(new_password)
-        user.save()
-
-        # Mark the token as used
-        reset_request.is_used = True
-        reset_request.save()
-
-        messages.success(request, 'Password reset successful')
-        return redirect('login')
-
-    return render(request, 'authentication/reset_password.html', {'token': token})
-'''

@@ -9,7 +9,5 @@ urlpatterns = [
     path('blog/<int:id>/', views.blog_detail, name='blog_detail'),
     path('search/',views.search,name='query'),
     path('myblogs/',views.myblogs,name='myblogs'),
-    #path('upload-image/<int:blog_id>/', views.upload_image, name='upload_image'),
-    #path('upload-images/<int:blog_id>/', views.upload_images_page, name='upload_images_page'),
     
 ]

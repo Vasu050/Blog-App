@@ -11,7 +11,7 @@ class TodoAdmin(admin.ModelAdmin):
     author_full_name.short_description = 'Author'
    
     def username(self, obj):
-        return obj.author.username  # Access the 'username' from the 'author' foreign key
+        return obj.author.username
     username.short_description = 'Username'
    
 admin.site.register(Todo,TodoAdmin)
