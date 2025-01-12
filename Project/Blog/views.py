@@ -93,16 +93,24 @@ def search(request):
     if request.method=='POST':
         query = request.POST.get('query','')
         source = request.POST.get('source', '')
-        
+        request.session['query'] = query
+        request.session['source'] = source
+    else:
+        query = request.session.get('query', '')
+        source = request.session.get('source', '')
+
     if source=='/blog/blogs/':
         blogs = Todo.objects.filter(
         Q(title__icontains=query) | Q(author__first_name__icontains=query) 
         | Q(author__last_name__icontains=query) | Q(description__icontains=query),author=request.user)
-        return render(request,'myblog.html',{'blogs': blogs})
+        return render(request,'index.html',{'blogs': blogs})
     else:
         blogs = Todo.objects.filter(
-        Q(title__icontains=query) | Q(author__first_name__icontains=query) | Q(author__last_name__icontains=query) | Q(description__icontains=query))
-        return render(request,'ht.html',{'blogs': blogs})
+        Q(title__icontains=query) | Q(author__first_name__icontains=query) 
+        | Q(author__last_name__icontains=query) | Q(description__icontains=query)).order_by('-date_created')  
+        page_obj = pagination(request,blogs)
+        
+        return render(request, 'ht.html', {'page_obj': page_obj, 'query': query, 'source': source})
 
 
 def myblogs(request):
@@ -111,8 +119,12 @@ def myblogs(request):
         return redirect('/')
 
     blogs = Todo.objects.order_by('-date_created') 
+    page_obj = pagination(request,blogs)
+    return render(request, 'ht.html', {'page_obj': page_obj,'blogs': blogs})
+
+def pagination(request,blogs):
+    
     paginator = Paginator(blogs, 4)  
     page_number = request.GET.get('page') 
     page_obj = paginator.get_page(page_number) 
-
-    return render(request, 'ht.html', {'page_obj': page_obj,'blogs': blogs})
+    return page_obj
