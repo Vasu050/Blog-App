@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.utils import timezone
 from datetime import timedelta
 from datetime import datetime
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes,force_str
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import random
 
 def user_login(request):
@@ -143,18 +146,64 @@ def profile(request):
             user.first_name=request.POST.get('first_name')
             user.last_name=request.POST.get('last_name')
             email=request.POST.get('email')
+            request.session['email'] = email
+
+            if email==user.email:
+                user.save()
+                messages.error(request,"Profile Updated Successfully")
+                return redirect('profile')
+                
+            
             if User.objects.filter(email=email).exclude(email=user.email).exists():
                 messages.error(request,"Email aready exist")
                 return redirect('profile')
+            
             else:
-                user.email=email
-                user.save()
-                messages.info(request,"Your Profile Updated Successfully")
-                return redirect('profile')
+                token_generator = PasswordResetTokenGenerator()
+                token = token_generator.make_token(request.user)
+                uid = urlsafe_base64_encode(force_bytes(request.user.pk))
+                verification_link = request.build_absolute_uri(
+                    f"/verify_email/{uid}/{token}/"
+                )
+                email_expiry=timezone.now() + timedelta(minutes=1)
+                request.session['email_expiry'] = email_expiry.isoformat()
+           
+                send_mail(
+                    'Verify Your Email Address',
+                    f'Click the link to verify your email: {verification_link}',
+                    'admin@example.com',
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, 'A verification link has been sent to your new email address.')
+                return redirect('profile') 
+                
         except Exception as e:
             return f'error: {str(e)}'
     
     return render(request,'profile.html',{'user':user})
+
+def verify_email(request,uid,token):
+      
+    uid = urlsafe_base64_decode(uid).decode()
+    user = User.objects.get(pk=uid)
+    email_expiry_str = request.session.get('email_expiry')
+    email_expiry = datetime.fromisoformat(email_expiry_str) 
+
+    if timezone.now() > email_expiry:
+        messages.error(request, "OTP has expired. Please request a new OTP.")
+        return redirect('profile') 
+        
+    token_generator = PasswordResetTokenGenerator()
+    if not token_generator.check_token(user, token):
+        messages.error(request, "Invalid verification link. Please try again.")
+        return redirect('profile')
+    
+    email= request.session.get('email')
+    user.email = email
+    user.save()
+    messages.success(request,"Your Profile Updated Successfully")
+    return redirect('profile')
 
 def delete(request):
     if not request.user.is_authenticated:  
