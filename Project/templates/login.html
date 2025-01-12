@@ -103,6 +103,27 @@
             border-radius: 8px;
             text-align: center;
         }
+
+        .google-btn {
+            display: inline-flex;
+            color: #4285F4; 
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 8px 15px;
+            border: 2px solid #4285F4; 
+            border-radius: 8px; 
+            text-decoration: none;
+            background-color: transparent; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-top: 10px;
+            margin-left: 20%;
+        }
+
+        .google-btn img {
+            margin-right: 10px; 
+            width: 20px; 
+            height: 20px;
+        }
     </style>
     <title>Login</title>
 </head>
@@ -138,6 +159,12 @@
             </div>
             <div class="account-text" style="margin-left: 50px;">
                 Forget Password? <a href="/password_reset/">Reset Here</a>
+            </div>
+            <div class="account-text">
+                <a href="{% provider_login_url 'google' %}" class="google-btn">
+                    <img src="https://th.bing.com/th/id/OIP.dDhaMJnam6xcs9jttXvAcQAAAA?rs=1&pid=ImgDetMain" alt="Google Logo">
+                    Sign in with Google
+                </a>
             </div>
         </form>
     </div>
